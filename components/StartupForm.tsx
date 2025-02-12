@@ -19,15 +19,17 @@ const StartupForm = () => {
   const router = useRouter();
 
   const handleFormSubmit = async (prevState: any, formData: FormData) => {
-    try {
-      const formValues = {
-        title: formData.get("title") as string,
-        description: formData.get("description") as string,
-        category: formData.get("category") as string,
-        link: formData.get("link") as string,
-        pitch,
-      };
 
+    // Storing the formdata in an object to persist in the useActionState().
+    const formValues = {
+      title: formData.get("title") as string,
+      description: formData.get("description") as string,
+      category: formData.get("category") as string,
+      link: formData.get("link") as string,
+      pitch,
+    };
+
+    try {
       await formSchema.parseAsync(formValues);
 
       const result = await createPitch(prevState, formData, pitch);
@@ -54,7 +56,7 @@ const StartupForm = () => {
           variant: "destructive",
         });
 
-        return { ...prevState, error: "Validation failed", status: "ERROR" };
+        return { ...prevState, error: "Validation failed", status: "ERROR", data: formValues };
       }
 
       toast({
@@ -67,6 +69,7 @@ const StartupForm = () => {
         ...prevState,
         error: "An unexpected error has occurred",
         status: "ERROR",
+        data: formValues
       };
     }
   };
@@ -74,6 +77,7 @@ const StartupForm = () => {
   const [state, formAction, isPending] = useActionState(handleFormSubmit, {
     error: "",
     status: "INITIAL",
+    data: {}
   });
 
   return (
@@ -88,6 +92,7 @@ const StartupForm = () => {
           className="startup-form_input"
           required
           placeholder="Startup Title"
+          defaultValue={state?.data?.title}
         />
 
         {errors.title && <p className="startup-form_error">{errors.title}</p>}
@@ -103,6 +108,7 @@ const StartupForm = () => {
           className="startup-form_textarea"
           required
           placeholder="Startup Description"
+          defaultValue={state?.data?.description}
         />
 
         {errors.description && (
@@ -120,6 +126,7 @@ const StartupForm = () => {
           className="startup-form_input"
           required
           placeholder="Startup Category (Tech, Health, Education...)"
+          defaultValue={state?.data?.category}
         />
 
         {errors.category && (
@@ -137,6 +144,7 @@ const StartupForm = () => {
           className="startup-form_input"
           required
           placeholder="Startup Image URL"
+          defaultValue={state?.data?.link}
         />
 
         {errors.link && <p className="startup-form_error">{errors.link}</p>}
