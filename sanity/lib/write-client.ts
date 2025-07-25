@@ -1,16 +1,16 @@
-import "server-only";
+import { createClient } from 'next-sanity';
 
-import { createClient } from "next-sanity";
-import { apiVersion, dataset, projectId, token } from "../env";
+// Only load write token on the server and ensure it exists
+const writeToken = process.env.SANITY_WRITE_TOKEN;
+if (!writeToken) {
+  throw new Error('SANITY_WRITE_TOKEN must be set in environment for write operations');
+}
 
 export const writeClient = createClient({
-  projectId,
-  dataset,
-  apiVersion,
-  useCdn: false,
-  token,
+  projectId: process.env.SANITY_PROJECT_ID!,
+  dataset: process.env.SANITY_DATASET!,
+  apiVersion: '2023-10-06',
+  token: writeToken,
+  useCdn: false,            // Never use CDN for writes
+  ignoreBrowserTokenWarning: true, // Avoid accidental client-side leaks
 });
-
-if (!writeClient.config().token) {
-  throw new Error("Write token not found.");
-}
