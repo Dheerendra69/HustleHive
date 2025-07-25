@@ -1,22 +1,15 @@
-export const apiVersion =
-  process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2024-10-14";
+// Only exports public Sanity configuration to avoid leaking tokens
+const projectId = process.env.SANITY_PROJECT_ID;
+const dataset = process.env.SANITY_DATASET;
 
-export const dataset = assertValue(
-  process.env.NEXT_PUBLIC_SANITY_DATASET,
-  "Missing environment variable: NEXT_PUBLIC_SANITY_DATASET",
-);
-
-export const projectId = assertValue(
-  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-  "Missing environment variable: NEXT_PUBLIC_SANITY_PROJECT_ID",
-);
-
-export const token = process.env.SANITY_WRITE_TOKEN;
-
-function assertValue<T>(v: T | undefined, errorMessage: string): T {
-  if (v === undefined) {
-    throw new Error(errorMessage);
-  }
-
-  return v;
+if (!projectId) {
+  throw new Error('SANITY_PROJECT_ID is required');
 }
+if (!dataset) {
+  throw new Error('SANITY_DATASET is required');
+}
+
+export const env = {
+  SANITY_PROJECT_ID: projectId,
+  SANITY_DATASET: dataset,
+};
