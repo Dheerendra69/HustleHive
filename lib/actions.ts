@@ -1,59 +1,39 @@
-"use server";
+import { z } from 'zod';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../auth';
+import { writeClient } from '../sanity/lib/write-client';
 
-import { auth } from "@/auth";
-import { parseServerActionResponse } from "@/lib/utils";
-import slugify from "slugify";
-import { writeClient } from "@/sanity/lib/write-client";
+// Define and enforce a strict schema for incoming post data
+const postSchema = z.object({
+  title: z.string().min(1).max(200),
+  content: z.string().min(1).max(2000),
+  authorId: z.string().uuid(),
+});
 
-export const createPitch = async (
-  state: any,
-  form: FormData,
-  pitch: string,
-) => {
-  const session = await auth();
+type PostInput = z.infer<typeof postSchema>;
 
-  if (!session)
-    return parseServerActionResponse({
-      error: "Not signed in",
-      status: "ERROR",
-    });
-
-  const { title, description, category, link } = Object.fromEntries(
-    Array.from(form).filter(([key]) => key !== "pitch"),
-  );
-
-  const slug = slugify(title as string, { lower: true, strict: true });
-
-  try {
-    const startup = {
-      title,
-      description,
-      category,
-      image: link,
-      slug: {
-        _type: slug,
-        current: slug,
-      },
-      author: {
-        _type: "reference",
-        _ref: session?.id,
-      },
-      pitch,
-    };
-
-    const result = await writeClient.create({ _type: "startup", ...startup });
-
-    return parseServerActionResponse({
-      ...result,
-      error: "",
-      status: "SUCCESS",
-    });
-  } catch (error) {
-    console.log(error);
-
-    return parseServerActionResponse({
-      error: JSON.stringify(error),
-      status: "ERROR",
-    });
+export async function createPost(data: unknown) {
+  // Authenticate the request
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    throw new Error('401 - Unauthorized');
   }
-};
+
+  // Validate and sanitize input
+  const parsed: PostInput = postSchema.parse(data);
+
+  // Authorize based on session user id or admin role
+  if (session.user.id !== parsed.authorId && session.user.role !== 'admin') {
+    throw new Error('403 - Forbidden');
+  }
+
+  // Perform a parameterized write via the Sanity client
+  const newPost = await writeClient.create({
+    _type: 'post',
+    title: parsed.title,
+    content: parsed.content,
+    author: { _type: 'reference', _ref: parsed.authorId },
+  });
+
+  return newPost;
+}
