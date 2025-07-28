@@ -3,7 +3,6 @@
 **YC-directory** is a modern blogging platform built with **Next.js**, where users can create and publish insightful articles about their startup journey. Inspired by the spirit of innovation, it’s a directory of stories from startup founders, makers, and enthusiasts.
 
 ### 🏠 Home Page  
-Displays a feed of all published articles, allowing visitors to explore different startup stories.
 ![Hero Page](./website-demo/Hero-Page.png)
 ---
 
