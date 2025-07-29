@@ -33,7 +33,7 @@
 
 ## 🌐 Live Demo
 
-- 🔗 [yc-directory.vercel.app](https://yc-directory.vercel.app) *(replace with your actual deployment link)*
+- 🔗 [yc-directory.vercel.app](https://yc-directory.vercel.app) 
 
 ---
 
