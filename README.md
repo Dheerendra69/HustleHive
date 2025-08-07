@@ -33,7 +33,7 @@
 
 ## 🌐 Live Demo
 
-- 🔗 [https://yc-directory-nu-eight.vercel.app](https://yc-directory-nu-eight.vercel.app/)
+- 🔗 [https://yc-directory-nu-eight.vercel.app](https://yc-directory-silk-theta.vercel.app/)
 
 ---
 
